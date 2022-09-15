@@ -3,16 +3,10 @@ package management
 import (
 	"context"
 
+	"github.com/aws/eks-anywhere/pkg/bootstrapper"
 	"github.com/aws/eks-anywhere/pkg/cluster"
 	"github.com/aws/eks-anywhere/pkg/workflow"
-	"github.com/aws/eks-anywhere/pkg/workflow/task/bootstrap"
-)
-
-// Define tasks names for each task run as part of the create cluster workflow. To aid readability
-// the order of task names should be representative of the order of execution.
-const (
-	CreateBootstrapCluster workflow.TaskName = "CreateBootstrapCluster"
-	DeleteBootstrapCluster workflow.TaskName = "DeleteBootstrapCluster"
+	"github.com/aws/eks-anywhere/pkg/workflow/management/task"
 )
 
 // CreateClusterHookRegistrar is a Hook registrar that binds hooks to a create management cluster
@@ -30,10 +24,10 @@ type CreateCluster struct {
 	Spec *cluster.Spec
 
 	// CreateBootstrapOptions supplies bootstrap cluster options for creating bootstrap clusters.
-	CreateBootstrapClusterOptions bootstrap.OptionsRetriever
+	CreateBootstrapOptions task.BootstrapOptionsRetriever
 
 	// Bootstrapper creates and destroys bootstrap clusters.
-	Bootstrapper bootstrap.Bootstrapper
+	Bootstrapper *bootstrapper.Bootstrapper
 
 	// hookRegistrars are data structures that wish to bind runtime hooks to the workflow.
 	// They should be added via the WithHookRegistrar method.
@@ -41,14 +35,13 @@ type CreateCluster struct {
 }
 
 // WithHookRegistrar adds a hook registrar to the create cluster workflow builder.
-func (c *CreateCluster) WithHookRegistrar(registrar CreateClusterHookRegistrar) *CreateCluster {
-	c.hookRegistrars = append(c.hookRegistrars, registrar)
-	return c
+func (b *CreateCluster) WithHookRegistrar(registrar CreateClusterHookRegistrar) *CreateCluster {
+	b.hookRegistrars = append(b.hookRegistrars, registrar)
+	return b
 }
 
-// Run runs the create cluster workflow.
-func (c CreateCluster) Run(ctx context.Context) error {
-	wflw, err := c.build()
+func (b CreateCluster) Run(ctx context.Context) error {
+	wflw, err := b.build()
 	if err != nil {
 		return err
 	}
@@ -56,24 +49,25 @@ func (c CreateCluster) Run(ctx context.Context) error {
 	return wflw.Execute(ctx)
 }
 
-func (c CreateCluster) build() (*workflow.Workflow, error) {
+// Build builds the create cluster workflow.
+func (cfg CreateCluster) build() (*workflow.Workflow, error) {
 	wflw := workflow.New(workflow.Config{})
 
-	for _, r := range c.hookRegistrars {
+	for _, r := range cfg.hookRegistrars {
 		r.RegisterCreateManagementClusterHooks(wflw)
 	}
 
-	err := wflw.AppendTask(CreateBootstrapCluster, bootstrap.CreateCluster{
-		Spec:         c.Spec,
-		Options:      c.CreateBootstrapClusterOptions,
-		Bootstrapper: c.Bootstrapper,
+	err := wflw.AppendTask(task.CreateBootstrapCluster{
+		Spec:         cfg.Spec,
+		Options:      cfg.CreateBootstrapOptions,
+		Bootstrapper: cfg.Bootstrapper,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	err = wflw.AppendTask(DeleteBootstrapCluster, bootstrap.DeleteCluster{
-		Bootstrapper: c.Bootstrapper,
+	err = wflw.AppendTask(task.DeleteBootstrapCluster{
+		Bootstrapper: cfg.Bootstrapper,
 	})
 	if err != nil {
 		return nil, err
