@@ -46,12 +46,25 @@ func BootstrapClusterOpts(clusterConfig *v1alpha1.Cluster, serverEndpoints ...st
 }
 
 func StripSshAuthorizedKeyComment(key string) (string, error) {
-	public, _, _, _, err := ssh.ParseAuthorizedKey([]byte(key))
+	public, comment, opts, _, err := ssh.ParseAuthorizedKey([]byte(key))
 	if err != nil {
 		return "", err
 	}
+
+	// order is options, keytype, base64-encoded key, comment
+	// https://man.freebsd.org/cgi/man.cgi?sshd(8)
+	result := []string{}
+	if len(opts) > 0 {
+		result = append(result, strings.Join(opts, ","))
+	}
 	// ssh.MarshalAuthorizedKey returns the key with a trailing newline, which we want to remove
-	return strings.TrimSpace(string(ssh.MarshalAuthorizedKey(public))), nil
+	k := strings.TrimPrefix(strings.TrimSuffix(strings.TrimSpace(string(ssh.MarshalAuthorizedKey(public))), "\n"), "\n")
+	result = append(result, k)
+	if comment != "" {
+		result = append(result, strings.TrimPrefix(strings.TrimSuffix(strings.TrimSpace(comment), "\n"), "\n"))
+	}
+
+	return strings.Join(result, " "), nil
 }
 
 func GenerateSSHAuthKey(writer filewriter.FileWriter) (string, error) {

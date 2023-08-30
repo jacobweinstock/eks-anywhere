@@ -166,25 +166,25 @@ spec:
     kind: Machine
     name: bmc-eksa-dev27
   disks:
-  - device: /dev/sda
+    - device: /dev/sda
   interfaces:
-  - dhcp:
-      arch: x86_64
-      hostname: eksa-dev27
-      ip:
-        address: 10.80.8.38
-        family: 4
-        gateway: 10.80.8.1
-        netmask: 255.255.252.0
-      lease_time: 4294967294
-      mac: 88:e9:a4:58:5c:ac
-      name_servers:
-      - 8.8.8.8
-      - 8.8.4.4
-      uefi: true
-    netboot:
-      allowPXE: true
-      allowWorkflow: true
+    - dhcp:
+        arch: x86_64
+        hostname: eksa-dev27
+        ip:
+          address: 10.80.8.38
+          family: 4
+          gateway: 10.80.8.1
+          netmask: 255.255.252.0
+        lease_time: 4294967294
+        mac: 88:e9:a4:58:5c:ac
+        name_servers:
+          - 8.8.8.8
+          - 8.8.4.4
+        uefi: true
+      netboot:
+        allowPXE: true
+        allowWorkflow: true
   metadata:
     facility:
       facility_code: onprem
@@ -195,11 +195,11 @@ spec:
       hostname: eksa-dev27
       id: 88:e9:a4:58:5c:ac
       ips:
-      - address: 10.80.8.38
-        family: 4
-        gateway: 10.80.8.1
-        netmask: 255.255.252.0
-        public: true
+        - address: 10.80.8.38
+          family: 4
+          gateway: 10.80.8.1
+          netmask: 255.255.252.0
+          public: true
       operating_system: {}
 status: {}
 ---
@@ -244,25 +244,25 @@ spec:
     kind: Machine
     name: bmc-eksa-dev27
   disks:
-  - device: /dev/sda
+    - device: /dev/sda
   interfaces:
-  - dhcp:
-      arch: x86_64
-      hostname: eksa-dev27
-      ip:
-        address: 10.80.8.38
-        family: 4
-        gateway: 10.80.8.1
-        netmask: 255.255.252.0
-      lease_time: 4294967294
-      mac: 88:e9:a4:58:5c:ac
-      name_servers:
-      - 8.8.8.8
-      - 8.8.4.4
-      uefi: true
-    netboot:
-      allowPXE: true
-      allowWorkflow: true
+    - dhcp:
+        arch: x86_64
+        hostname: eksa-dev27
+        ip:
+          address: 10.80.8.38
+          family: 4
+          gateway: 10.80.8.1
+          netmask: 255.255.252.0
+        lease_time: 4294967294
+        mac: 88:e9:a4:58:5c:ac
+        name_servers:
+          - 8.8.8.8
+          - 8.8.4.4
+        uefi: true
+      netboot:
+        allowPXE: true
+        allowWorkflow: true
   metadata:
     facility:
       facility_code: onprem
@@ -273,11 +273,11 @@ spec:
       hostname: eksa-dev27
       id: 88:e9:a4:58:5c:ac
       ips:
-      - address: 10.80.8.38
-        family: 4
-        gateway: 10.80.8.1
-        netmask: 255.255.252.0
-        public: true
+        - address: 10.80.8.38
+          family: 4
+          gateway: 10.80.8.1
+          netmask: 255.255.252.0
+          public: true
       operating_system: {}
 status: {}
 ---
@@ -311,5 +311,5 @@ type: kubernetes.io/basic-auth`)
 	g := NewWithT(t)
 	got, err := unstructuredutil.StripNull(hardwareYaml)
 	g.Expect(err).To(BeNil())
-	g.Expect(got).To(Equal(wantHardwareYaml))
+	g.Expect(string(got)).To(Equal(string(wantHardwareYaml)))
 }

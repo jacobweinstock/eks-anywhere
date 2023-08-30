@@ -568,6 +568,7 @@ func omitTinkerbellMachineTemplate(yml []byte) ([]byte, error) {
 		if err := yamlutil.Unmarshal(d, &m); err != nil {
 			return nil, err
 		}
+
 		var u unstructured.Unstructured
 		u.SetUnstructuredContent(m)
 

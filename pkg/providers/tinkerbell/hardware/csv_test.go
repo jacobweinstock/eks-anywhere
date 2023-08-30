@@ -149,7 +149,7 @@ func TestCSVBuildHardwareYamlFromCSV(t *testing.T) {
 
 	hardwareYaml, err := hardware.BuildHardwareYAML("./testdata/hardware.csv")
 	g.Expect(err).ToNot(gomega.HaveOccurred())
-	g.Expect(hardwareYaml).To(gomega.Equal([]byte(`apiVersion: tinkerbell.org/v1alpha1
+	want := `apiVersion: tinkerbell.org/v1alpha1
 kind: Hardware
 metadata:
   labels:
@@ -161,24 +161,24 @@ spec:
     kind: Machine
     name: bmc-worker1
   disks:
-  - device: /dev/sda
+    - device: /dev/sda
   interfaces:
-  - dhcp:
-      arch: x86_64
-      hostname: worker1
-      ip:
-        address: 10.10.10.10
-        family: 4
-        gateway: 10.10.10.1
-        netmask: 255.255.255.0
-      lease_time: 4294967294
-      mac: "00:00:00:00:00:01"
-      name_servers:
-      - 1.1.1.1
-      uefi: true
-    netboot:
-      allowPXE: true
-      allowWorkflow: true
+    - dhcp:
+        arch: x86_64
+        hostname: worker1
+        ip:
+          address: 10.10.10.10
+          family: 4
+          gateway: 10.10.10.1
+          netmask: 255.255.255.0
+        lease_time: 4294967294
+        mac: "00:00:00:00:00:01"
+        name_servers:
+          - 1.1.1.1
+        uefi: true
+      netboot:
+        allowPXE: true
+        allowWorkflow: true
   metadata:
     facility:
       facility_code: onprem
@@ -189,11 +189,11 @@ spec:
       hostname: worker1
       id: "00:00:00:00:00:01"
       ips:
-      - address: 10.10.10.10
-        family: 4
-        gateway: 10.10.10.1
-        netmask: 255.255.255.0
-        public: true
+        - address: 10.10.10.10
+          family: 4
+          gateway: 10.10.10.1
+          netmask: 255.255.255.0
+          public: true
       operating_system: {}
 status: {}
 ---
@@ -222,7 +222,8 @@ metadata:
     clusterctl.cluster.x-k8s.io/move: "true"
   name: bmc-worker1-auth
   namespace: eksa-system
-type: kubernetes.io/basic-auth`)))
+type: kubernetes.io/basic-auth`
+	g.Expect(string(hardwareYaml)).To(gomega.Equal(want))
 }
 
 // BufferedCSV is an in-memory CSV that satisfies io.Reader and io.Writer.
